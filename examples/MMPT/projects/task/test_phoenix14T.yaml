@@ -1,0 +1,23 @@
+includes: projects/task/test.yaml
+dataset:
+  meta_processor: Phoenix14TNLGMetaProcessor
+  test_path: data/phoenix14T/annotations/test.lst
+  all_annotation: data/phoenix14T/annotations/all.pkl
+  video_processor: Phoenix14TVideoProcessor
+  vfeat_dir: data/phoenix14T/features/all
+  text_processor: NLGTextProcessor
+  aligner: DSNLGAligner
+model:
+  model_cls: MMFusionNLG
+  mm_encoder_cls: MMBertForNLG
+  max_decode_length: 24
+eval:
+  save_path: runs/vlm/phoenix14T/how2sign_de_ct/eval
+fairseq:
+  # read code and find what is the checkpoint arg.
+  common_eval:
+    path: runs/vlm/phoenix14T/how2sign_de_ct/checkpoint_best.pt
+metric: NLGMetric
+predictor: NLGPredictor
+gen_param:
+  num_beams: 5

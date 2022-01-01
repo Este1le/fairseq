@@ -108,6 +108,7 @@ class MMFusion(nn.Module):
             self.last_iso_layer = config.dataset.num_iso_layer - 1 + 1
 
         if config.model.mm_encoder_cls is not None:
+            #mm_encoder_cls = getattr(mmfusion, config.model.mm_encoder_cls)
             mm_encoder_cls = getattr(transformermodel, config.model.mm_encoder_cls)
             model_config = AutoConfig.from_pretrained(config.dataset.bert_name)
             model_config.max_video_len = config.dataset.max_video_len

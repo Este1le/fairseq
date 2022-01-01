@@ -77,7 +77,7 @@ class CaptionDedupProcessor(object):
 
     def save_stat(self, video_id, caption):
         video_fn = os.path.join(
-            "data/feat/feat_how2_s3d", video_id + ".npy"
+            "/exp/xzhang/slt/fairseq/examples/MMPT/data/phoenix14T/features/all/", video_id + ".npy"
         )
         if os.path.isfile(video_fn):
             with open(video_fn, "rb", 1) as fr:  # 24 is the buffer size. buffered
@@ -98,7 +98,9 @@ class CaptionDedupProcessor(object):
                 t_clip_len += clip_len
                 t_tokens += len(text.split(" "))
                 self.stat["clip_len"].append(clip_len)
-	    self.stat["t_clip_len"].append(t_clip_len)
+                if clip_len < 0:
+                    print(video_id, "end", end, "end-1", caption['end'][idx-1], "start", start)
+            self.stat["t_clip_len"].append(t_clip_len)
             self.stat["video_len"].append(video_len)
             self.stat["clip_tps"].append(t_tokens / t_clip_len)
             self.stat["video_tps"].append(t_tokens / video_len)
@@ -109,10 +111,10 @@ class CaptionDedupProcessor(object):
             "video_len": np.mean(self.stat["video_len"]),
             "clip_tps": np.mean(self.stat["clip_tps"]),
             "video_tps": np.mean(self.stat["video_tps"]),
-            "min_clip_len": min(self.stat["clip_len"]),
-            "max_clip_len": max(self.stat["clip_len"]),
-            "mean_clip_len": np.mean(self.stat["clip_len"]),
-            "num_clip": len(self.stat["clip_len"]) / len(self.stat["video_tps"]),
+            #"min_clip_len": min(self.stat["clip_len"]),
+            #"max_clip_len": max(self.stat["clip_len"]),
+            #"mean_clip_len": np.mean(self.stat["clip_len"]),
+            #"num_clip": len(self.stat["clip_len"]) / len(self.stat["video_tps"]),
         }
         print(result)
 
@@ -211,12 +213,12 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="dedup how2 caption")
-    parser.add_argument('--how2dir', default="data/how2")
+    parser.add_argument('--how2dir', default="data/phoenix14T/annotations")
     args = parser.parse_args()
 
-    raw_caption_json = os.path.join(args.how2dir, "raw_caption.json")
-    raw_caption_pickle = os.path.join(args.how2dir, "raw_caption.pkl")
-    raw_caption_dedup_pickle = os.path.join(args.how2dir, "raw_caption_dedup.pkl")
+    raw_caption_json = os.path.join(args.how2dir, "all.json")
+    raw_caption_pickle = os.path.join(args.how2dir, "all.pkl")
+    raw_caption_dedup_pickle = os.path.join(args.how2dir, "all_dedup.pkl")
 
     def convert_to_pickle(src_fn, tgt_fn):
         with open(src_fn) as fd:

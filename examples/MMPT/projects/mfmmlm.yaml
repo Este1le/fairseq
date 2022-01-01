@@ -1,12 +1,12 @@
 project_dir: mfmmlm
 run_task:
-  - how2.yaml
+  - how2sign.yaml
   - [vtt.yaml, vttcap.yaml, vttqa.yaml, youcook.yaml, youcookcap.yaml, crosstask.yaml, coin.yaml]
 base_dir: task
 task_group:
   pretrain:
     task_list:
-      - how2.yaml
+      - how2sign.yaml
     dataset:
       subsampling: 32
       sampled_min_len: 10
@@ -29,7 +29,7 @@ task_group:
       dataset:
         batch_size: 256
       optimization:
-        max_epoch: 15     
+        max_epoch: 80     
   finetune:
     task_list:
       - vtt.yaml

@@ -78,7 +78,7 @@ class DSNLGAligner(DSAligner):
         self.attnmasker = MMAttentionMask2DProcessor()
         from transformers import AutoTokenizer
         tokenizer = AutoTokenizer.from_pretrained(
-            self.bert_name, use_fast=self.use_fast,
+            config.bert_name, use_fast=config.use_fast,
             bos_token="[CLS]", eos_token="[SEP]"
         )
         self.tokenizer = tokenizer
@@ -846,3 +846,56 @@ class DiDeMoAligner(DSAligner):
     def __call__(self, video_id, video_feature, text_feature):
         # print(video_feature.shape[0])
         return super().__call__(video_id, video_feature, text_feature)
+
+# -------------------- PHOENIX14T -----------------------
+class Phoenix14TMetaProcessor(MetaProcessor):
+    """Phoenix14T dataset.
+    """
+    def __init__(self, config):
+        super().__init__(config)
+        with open(self._get_split_path(config)) as fd:
+            self.data = [d.strip() for d in fd.readlines()]
+        with open(config.all_annotation, "rb") as fa:
+            self.phoenix14T_annotation = pickle.load(fa)
+    
+    def __getitem__(self, idx):
+        def _get_video_and_caption(rec):
+            vid = rec
+            start = eval(self.phoenix14T_annotation[vid])['start'][0]
+            end = eval(self.phoenix14T_annotation[vid])['end'][0]
+            caption = eval(self.phoenix14T_annotation[vid])['text'][0]
+            return (vid, start, end), caption
+        rec = self.data[idx]
+        video_info, text_info = _get_video_and_caption(rec)
+        return video_info, text_info
+
+class Phoenix14TVideoProcessor(VideoProcessor):
+    """video_fn is a tuple of (video_id, start, end) now."""
+
+    def __call__(self, video_fn):
+        video_id, start, end = video_fn
+        feat = np.load(os.path.join(self.vfeat_dir, video_id + ".npy"))
+        return feat
+    
+class Phoenix14TNLGMetaProcessor(MetaProcessor):
+    """NLG uses the original split:
+    `train_list.txt` and `val_list.txt`
+    """
+
+    def __init__(self, config):
+        super().__init__(config)
+        with open(self._get_split_path(config)) as fd:
+            vids = [d.strip() for d in fd.readlines()]
+        with open(config.all_annotation, "rb") as fa:
+            self.phoenix14T_annotation = pickle.load(fa)
+        data = []
+        for vid in vids:
+            start = eval(self.phoenix14T_annotation[vid])['start'][0]
+            end = eval(self.phoenix14T_annotation[vid])['end'][0]
+            caption = eval(self.phoenix14T_annotation[vid])['text'][0]
+            data.append(((vid, start, end), caption))
+        self.data = data
+    
+    def __getitem__(self, idx):
+        return self.data[idx]
+            

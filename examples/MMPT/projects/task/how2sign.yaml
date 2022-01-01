@@ -1,0 +1,22 @@
+includes: projects/task/default.yaml
+task_type: sweep_big
+slurm_config: big
+dataset:
+  meta_processor: ShardedHow2MetaProcessor
+  train_path: data/how2sign/annotations/train.lst
+  val_path: data/how2sign/annotations/val.lst
+  video_processor: ShardedVideoProcessor
+  vfeat_dir: data/how2sign/features/s3d_shard_small
+  text_processor: ShardedTextProcessor
+  tfeat_dir: data/how2sign/annotations/all_dedup.bert-base-uncased.pkl
+  aligner: FixedLenAligner
+# disable direct running of this yaml
+eval:
+  save_path: runs/vlm/how2sign
+fairseq:
+  checkpoint:
+    save_dir: runs/vlm/how2sign
+    save_interval_updates: 1024
+    keep_interval_updates: 2
+    keep_last_epochs: 30
+

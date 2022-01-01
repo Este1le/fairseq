@@ -47,6 +47,7 @@ class MMDataset(Dataset):
         if self.split == "test":
             set_seed(idx)
         video_id, text_id = self.meta_processor[idx]
+        #import pdb; pdb.set_trace()
         video_feature = self.video_processor(video_id)
         text_feature = self.text_processor(text_id)
         output = self.align_processor(video_id, video_feature, text_feature)
